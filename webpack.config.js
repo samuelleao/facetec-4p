@@ -5,7 +5,7 @@ var compiledCount = 1;
 module.exports = function() {
   var buildOptions = {
     target: "web",
-    entry: "./src/sampleAppController.js",
+    entry: "./sampleAppController.js",
     mode: "development",
     devtool: "source-map",
     watch: true,
