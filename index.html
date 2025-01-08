@@ -1,0 +1,189 @@
+<!-- Welcome to the FaceTec Browser Sample App
+
+ This sample demonstrates Initialization, Liveness Check, Enrollment, Verification, Photo ID Match, Customizing the UX, and Getting Audit Trail Images.
+
+ Please use our technical support form to submit questions and issue reports:  https://dev.facetec.com/support -->
+<!DOCTYPE html>
+
+<head>
+  <title>Browser SDK - Sample App</title>
+  <meta charset="utf-8" />
+  <link rel="icon" href="../../sample-app-resources/images/favicon.ico">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i');
+  </style>
+  <link rel="stylesheet" href="./css/style.css?v1">
+  <!-- Add iOS meta tags and icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Browser SDK - Sample App">
+  <script type="text/javascript" src="../../sample-app-resources/js/very-old-browser-check.js"></script>
+  <script type="module">
+    import { Config } from "../../Config.js";
+    window.Config = Config;
+  </script>
+  <script>
+    fetch('../../sample-app-resources/FaceTec_OCR_Customization.json')
+      .then(response => {
+        return response.json();
+      })
+      .then(data => window.ocrLocalizationJSON = data);
+  </script>
+  <script src="../../core-sdk/FaceTecSDK.js/FaceTecSDK.js"></script>
+  <script type="text/javascript" src="./processors/VerificationProcessor.js"></script>
+  <script type="text/javascript" src="./processors/EnrollmentProcessor.js"></script>
+  <script type="text/javascript" src="./processors/LivenessCheckProcessor.js"></script>
+  <script type="text/javascript" src="./processors/PhotoIDMatchProcessor.js"></script>
+  <script type="text/javascript" src="./processors/PhotoIDScanProcessor.js"></script>
+  <script type="text/javascript" src="./utilities/SampleAppUIFunctions.js"></script>
+  <script type="text/javascript" src="./utilities/SampleAppUtilities.js"></script>
+  <script type="text/javascript" src="./utilities/ThemeHelpers.js"></script>
+  <script type="text/javascript" src="./utilities/AdditionalScreens.js"></script>
+  <script type="text/javascript" src="./utilities/SoundFileUtilities.js"></script>
+  <script type="text/javascript" src="./utilities/FaceTecStatusEnumFriendlyText.js"></script>
+  <script type="text/javascript" src="./utilities/DeveloperStatusMessages.js"></script>
+  <script type="text/javascript" src="./sampleAppController.js?v1"></script>
+  <script>
+    const ServerUpgradeLogo = '../../sample-app-resources/images/upgrade.png'
+    const FACESCAN_SUCCESSFUL_SOUND_FILE = '../../sample-app-resources/Vocal_Guidance_Audio_Files/facescan_successful_sound_file.mp3'
+    const PLEASE_FRAME_YOUR_FACE_SOUND_FILE = '../../sample-app-resources/Vocal_Guidance_Audio_Files/please_frame_your_face_sound_file.mp3'
+    const PLEASE_MOVE_CLOSER_SOUND_FILE = '../../sample-app-resources/Vocal_Guidance_Audio_Files/please_move_closer_sound_file.mp3'
+    const PLEASE_PRESS_BUTTON_SOUND_FILE = '../../sample-app-resources/Vocal_Guidance_Audio_Files/please_press_button_sound_file.mp3'
+    const PLEASE_RETRY_SOUND_FILE = '../../sample-app-resources/Vocal_Guidance_Audio_Files/please_retry_sound_file.mp3'
+    const UPLOADING_SOUND_FILE = '../../sample-app-resources/Vocal_Guidance_Audio_Files/uploading_sound_file.mp3'
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function onLivenessSuccess(result) {
+      const message = { success: true, data: result }; // ou algum outro dado relevante
+      window.ReactNativeWebView.postMessage(JSON.stringify(message));
+    }
+
+    function onLivenessFailure(error) {
+      const message = { success: false, error: error.message };
+      window.ReactNativeWebView.postMessage(JSON.stringify(message));
+    }
+  </script>
+
+</head>
+
+<body class="bg-neutral-950">
+
+
+  <div class="mx-auto max-w-[400px] flex flex-col h-screen">
+    <div class="flex flex-row items-center space-x-2">
+      <div class="flex-1 h-44 relative">
+        <img class="flex-1 h-full object-cover w-full rounded-xl" src="./sample-app-resources/images/man-smiling.png"
+          alt="Man smiling" />
+        <div class="w-7 h-7 absolute bg-rose-700 flex items-center justify-center rounded-full right-4 bottom-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-rose-50">
+            <path
+              d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17">
+            </path>
+          </svg>
+        </div>
+      </div>
+
+      <div class="flex-1 h-44 relative">
+        <img class="flex-1 h-full object-cover w-full rounded-xl" src="./sample-app-resources/images/white-man.png"
+          alt="White man" />
+        <div class="w-7 h-7 absolute bg-emerald-700 flex items-center justify-center rounded-full right-2 bottom-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-rose-50">
+            <path
+              d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3">
+            </path>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <div class="flex flex-row items-center space-x-4 py-[14px] border-b border-neutral-800">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-50">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <label class="text-sm text-neutral-400">
+          Posicione-se em um fundo claro.
+        </label>
+      </div>
+      <div class="flex flex-row items-center space-x-4 py-[14px] border-b border-neutral-800">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-50">
+          <path d="M17 18a5 5 0 0 0-10 0"></path>
+          <line x1="12" y1="2" x2="12" y2="9"></line>
+          <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line>
+          <line x1="1" y1="18" x2="3" y2="18"></line>
+          <line x1="21" y1="18" x2="23" y2="18"></line>
+          <line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line>
+          <line x1="23" y1="22" x2="1" y2="22"></line>
+          <polyline points="8 6 12 2 16 6"></polyline>
+        </svg>
+        <label class="text-sm text-neutral-400">
+          Escolha um ambiente bem iluminado
+        </label>
+      </div>
+      <div class="flex flex-row items-center space-x-4 py-[14px] border-b border-neutral-800">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-50">
+          <circle cx="6" cy="6" r="3"></circle>
+          <circle cx="18" cy="6" r="3"></circle>
+          <path d="M9 6h6"></path>
+          <line x1="12" y1="9" x2="12" y2="11"></line>
+          <path d="M6 9v5a6 6 0 0 0 12 0V9"></path>
+        </svg>
+        <label class="text-sm text-neutral-400">
+          Retire boné, óculos e acessórios.
+        </label>
+      </div>
+      <div class="flex flex-row items-center space-x-4 py-[14px] border-b border-neutral-800">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-50">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>
+          <rect x="9" y="3" width="6" height="4" rx="2"></rect>
+          <path d="M9 12h6"></path>
+          <path d="M9 16h6"></path>
+        </svg>
+        <label class="text-sm text-neutral-400">
+          Não sorria ou faça caretas.
+        </label>
+      </div>
+    </div>
+
+    <div class="flex-1 pb-4 flex flex-col justify-end">
+      <div class="mt-auto" id="controls">
+
+        <button id="liveness-button" disabled onclick="SampleApp.onLivenessCheckPressed()"
+          class="bg-[#D1E056] !w-full text-black py-2 px-4 rounded-full">Certo, estou pronto</button>
+
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="opacity-0">
+    <div id="status"></div>
+    <div id="copy-right-length" aria-hidden="true" tabindex="-1">&copy; 2024 FaceTec, Inc. &thinsp;&middot;&thinsp;
+      Multiple US & International Patents Granted&thinsp;&middot;&thinsp; All Rights Reserved</div>
+    <div class="loading-session-token-container">
+      <p id="loading-session-token-text" aria-live="polite">Network Connection Slow...</p>
+    </div>
+  </div>
+
+  </div>
+
+</body>
+
+</html>
