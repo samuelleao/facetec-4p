@@ -5,6 +5,9 @@
 // This is an example self-contained class to perform Liveness Checks with the FaceTec SDK.
 // You may choose to further componentize parts of this in your own Apps based on your specific requirements.
 //
+
+var auditTrailImage;
+
 var LivenessCheckProcessor = /** @class */ (function () {
   function LivenessCheckProcessor(sessionToken, sampleAppControllerReference) {
     var _this = this;
@@ -34,12 +37,14 @@ var LivenessCheckProcessor = /** @class */ (function () {
       //
       // Part 4:  Get essential data off the FaceTecSessionResult
       //
+
       var parameters = {
         faceScan: sessionResult.faceScan,
         auditTrailImage: sessionResult.auditTrail[0],
         lowQualityAuditTrailImage: sessionResult.lowQualityAuditTrail[0],
         sessionId: sessionResult.sessionId,
       };
+
       //
       // Part 5:  Make the Networking Call to Your Servers.  Below is just example code, you are free to customize based on how your own API works.
       //
@@ -75,10 +80,13 @@ var LivenessCheckProcessor = /** @class */ (function () {
               responseJSON.wasProcessed === true &&
               responseJSON.error === false
             ) {
+              auditTrailImage = parameters.auditTrailImage;
+
               // Demonstrates dynamically setting the Success Screen Message.
               FaceTecSDK.FaceTecCustomization.setOverrideResultScreenSuccessMessage(
                 "Face Scanned\n3D Liveness Proven"
               );
+
               // In v9.2.0+, simply pass in scanResultBlob to the proceedToNextStep function to advance the User flow.
               // scanResultBlob is a proprietary, encrypted blob that controls the logic for what happens next for the User.
               faceScanResultCallback.proceedToNextStep(scanResultBlob);
@@ -149,7 +157,8 @@ var LivenessCheckProcessor = /** @class */ (function () {
       // Log success message
       if (_this.success) {
         DeveloperStatusMessages.logMessage("Liveness Confirmed");
-        onLivenessSuccess("Liveness Confirmed");
+        console.log(`data:image/png;base64, ${auditTrailImage}`);
+        onLivenessSuccess(`data:image/png;base64, ${auditTrailImage}`);
       }
       _this.sampleAppControllerReference.onComplete(
         _this.latestSessionResult,
